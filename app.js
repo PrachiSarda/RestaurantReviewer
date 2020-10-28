@@ -4,6 +4,8 @@ const path = require('path');
 const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 
+const catchAsync = require('./utils/catchAsync');
+const ExpressError = require('./utils/ExpressError');
 const Restaurant = require('./models/restaurant');
 
 const app = express();
@@ -31,41 +33,52 @@ app.get('/', (req, res) => {
     res.render('home')
 })
 
-app.get('/restaurants', async (req, res) => {
+app.get('/restaurants', catchAsync(async (req, res) => {
     const restaurants = await Restaurant.find({});
     res.render('restaurants/index', { restaurants })
-});
+}));
 
 app.get('/restaurants/new', (req, res) => {
     res.render('restaurants/new');
 })
 
-app.post('/restaurants', async (req, res) => {
+app.post('/restaurants', catchAsync(async (req, res, next) => {
+    if (!req.body.restaurant) throw new ExpressError('Invalid Restaurant Data', 400);
     const restaurant = new Restaurant(req.body.restaurant);
     await restaurant.save();
     res.redirect(`/restaurants/${restaurant._id}`)
-})
+}))
 
-app.get('/restaurants/:id/edit', async (req, res) => {
+app.get('/restaurants/:id/edit', catchAsync(async (req, res) => {
     const restaurant = await Restaurant.findById(req.params.id)
     res.render('restaurants/edit', { restaurant });
-})
+}))
 
-app.put('/restaurants/:id', async (req, res) => {
+app.put('/restaurants/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     const restaurant = await Restaurant.findByIdAndUpdate(id, { ...req.body.restaurant });
     res.redirect(`/restaurants/${restaurant._id}`)
-});
+}));
 
-app.get('/restaurants/:id', async (req, res,) => {
+app.get('/restaurants/:id',  catchAsync(async (req, res,) => {
     const restaurant = await Restaurant.findById(req.params.id)
     res.render('restaurants/show', { restaurant });
-});
+}));
 
-app.delete('/restaurants/:id', async (req, res) => {
+app.delete('/restaurants/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await Restaurant.findByIdAndDelete(id);
     res.redirect('/restaurants');
+}))
+
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404))
+})
+
+app.use((err, req, res, next) => {
+    const { statusCode = 500 } = err;
+    if (!err.message) err.message = 'Oh No, Something Went Wrong!'
+    res.status(statusCode).render('error', { err })
 })
 
 app.listen(3000, ()=> {
