@@ -4,6 +4,7 @@ const path = require('path');
 const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 
+const { restaurantSchema } = require('./schemas.js');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/ExpressError');
 const Restaurant = require('./models/restaurant');
@@ -29,6 +30,17 @@ app.use(methodOverride('_method'));
 
 app.engine('ejs', ejsMate);
 
+const validateRestaurant = (req, res, next) => {
+    const { error } = restaurantSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(msg, 400)
+    } else {
+        next();
+    }
+}
+
+
 app.get('/', (req, res) => {
     res.render('home')
 })
@@ -42,8 +54,8 @@ app.get('/restaurants/new', (req, res) => {
     res.render('restaurants/new');
 })
 
-app.post('/restaurants', catchAsync(async (req, res, next) => {
-    if (!req.body.restaurant) throw new ExpressError('Invalid Restaurant Data', 400);
+app.post('/restaurants', validateRestaurant, catchAsync(async (req, res, next) => {
+    //if (!req.body.restaurant) throw new ExpressError('Invalid Restaurant Data', 400);
     const restaurant = new Restaurant(req.body.restaurant);
     await restaurant.save();
     res.redirect(`/restaurants/${restaurant._id}`)
@@ -54,7 +66,7 @@ app.get('/restaurants/:id/edit', catchAsync(async (req, res) => {
     res.render('restaurants/edit', { restaurant });
 }))
 
-app.put('/restaurants/:id', catchAsync(async (req, res) => {
+app.put('/restaurants/:id', validateRestaurant, catchAsync(async (req, res) => {
     const { id } = req.params;
     const restaurant = await Restaurant.findByIdAndUpdate(id, { ...req.body.restaurant });
     res.redirect(`/restaurants/${restaurant._id}`)
