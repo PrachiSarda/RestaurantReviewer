@@ -4,10 +4,11 @@ const path = require('path');
 const ejsMate = require('ejs-mate');
 const methodOverride = require('method-override');
 
-const { restaurantSchema } = require('./schemas.js');
+const { restaurantSchema, reviewSchema } = require('./schemas.js');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/ExpressError');
 const Restaurant = require('./models/restaurant');
+const Review = require('./models/review');
 
 const app = express();
 mongoose.connect('mongodb://localhost:27017/restaurant-reviewer', {
@@ -32,6 +33,16 @@ app.engine('ejs', ejsMate);
 
 const validateRestaurant = (req, res, next) => {
     const { error } = restaurantSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',')
+        throw new ExpressError(msg, 400)
+    } else {
+        next();
+    }
+}
+
+const validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
     if (error) {
         const msg = error.details.map(el => el.message).join(',')
         throw new ExpressError(msg, 400)
@@ -81,6 +92,15 @@ app.delete('/restaurants/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     await Restaurant.findByIdAndDelete(id);
     res.redirect('/restaurants');
+}))
+
+app.post('/restaurants/:id/reviews', validateReview, catchAsync(async (req, res) => {
+    const restaurant = await Restaurant.findById(req.params.id);
+    const review = new Review(req.body.review);
+    restaurant.reviews.push(review);
+    await review.save();
+    await restaurant.save();
+    res.redirect(`/restaurants/${restaurant._id}`);
 }))
 
 app.all('*', (req, res, next) => {
