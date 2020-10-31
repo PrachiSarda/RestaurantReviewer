@@ -84,7 +84,8 @@ app.put('/restaurants/:id', validateRestaurant, catchAsync(async (req, res) => {
 }));
 
 app.get('/restaurants/:id',  catchAsync(async (req, res,) => {
-    const restaurant = await Restaurant.findById(req.params.id)
+    const restaurant = await Restaurant.findById(req.params.id).populate('reviews');
+    console.log(restaurant);
     res.render('restaurants/show', { restaurant });
 }));
 
@@ -101,6 +102,13 @@ app.post('/restaurants/:id/reviews', validateReview, catchAsync(async (req, res)
     await review.save();
     await restaurant.save();
     res.redirect(`/restaurants/${restaurant._id}`);
+}))
+
+app.delete('/restaurants/:id/reviews/:reviewId', catchAsync(async (req, res) => {
+    const { id, reviewId } = req.params;
+    await Restaurant.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/restaurants/${id}`);
 }))
 
 app.all('*', (req, res, next) => {
