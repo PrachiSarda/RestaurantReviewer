@@ -39,7 +39,12 @@ router.put('/:id', isLoggedIn, isAuthor, validateRestaurant, catchAsync(async (r
 }));
 
 router.get('/:id', catchAsync(async (req, res,) => {
-    const restaurant = await Restaurant.findById(req.params.id).populate('reviews').populate('author');
+    const restaurant = await Restaurant.findById(req.params.id).populate ({
+        path: 'reviews',
+        populate: {
+            path: 'author'
+        }
+    }).populate('author');
     console.log(restaurant);
     if(!restaurant) {
         req.flash('error', 'Cannot find that restaurant!');
