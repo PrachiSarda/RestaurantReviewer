@@ -1,13 +1,21 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 
 const restaurants = require('../controllors/restaurants')
 const catchAsync = require('../utils/catchAsync');
 const { isLoggedIn, isAuthor, validateRestaurant} = require('../middleware');
 
+const { storage } = require('../cloudinary');
+const upload = multer({ storage });
+
 router.route('/')
     .get(catchAsync(restaurants.index))
-    .post(isLoggedIn, validateRestaurant, catchAsync(restaurants.createRestaurant))
+    // .post(isLoggedIn, upload.array('image'), validateRestaurant, catchAsync(restaurants.createRestaurant))
+    .post(upload.array('image'), (req, res) => {
+        console.log(req.body, req.files)
+        res.send("IT WORKED");
+    })
 
 router.get('/new', isLoggedIn, restaurants.renderNewForm)
 
