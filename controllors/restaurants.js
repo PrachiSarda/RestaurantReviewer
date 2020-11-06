@@ -11,8 +11,10 @@ module.exports.renderNewForm = (req, res) => {
 
 module.exports.createRestaurant = async (req, res, next) => {
     const restaurant = new Restaurant(req.body.restaurant);
+    restaurant.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     restaurant.author = req.user._id;
     await restaurant.save();
+    console.log(restaurant);
     req.flash('success', 'Successfully made a new restaurant!');
     res.redirect(`/restaurants/${restaurant._id}`)
 }

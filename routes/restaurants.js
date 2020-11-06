@@ -11,11 +11,11 @@ const upload = multer({ storage });
 
 router.route('/')
     .get(catchAsync(restaurants.index))
-    // .post(isLoggedIn, upload.array('image'), validateRestaurant, catchAsync(restaurants.createRestaurant))
-    .post(upload.array('image'), (req, res) => {
-        console.log(req.body, req.files)
-        res.send("IT WORKED");
-    })
+    .post(isLoggedIn, upload.array('image'), validateRestaurant, catchAsync(restaurants.createRestaurant))
+    // .post(upload.array('image'), (req, res) => {
+    //     console.log(req.body, req.files)
+    //     res.send("IT WORKED");
+    // })
 
 router.get('/new', isLoggedIn, restaurants.renderNewForm)
 

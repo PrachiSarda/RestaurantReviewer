@@ -29,9 +29,18 @@ const seedDB = async () => {
             author: '5f9feba9bb168c1f70329484',
             location: `${cities[random20].city}, ${cities[random20].state}`,
             title: `${sample(descriptors)} ${sample(places)}`,
-            image: 'https://source.unsplash.com/collection/190727',
             description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam dolores vero perferendis laudantium, consequuntur voluptatibus nulla architecto, sit soluta esse iure sed labore ipsam a cum nihil atque molestiae deserunt!',
-            price
+            price,
+            images: [ 
+                { 
+                    url: 'https://res.cloudinary.com/daaq0pagg/image/upload/v1604690846/RestaurantReviewer/cy3nwsuon4gumjk6rsmw.jpg',
+                    filename: 'RestaurantReviewer/cy3nwsuon4gumjk6rsmw' 
+                },
+                { 
+                    url: 'https://res.cloudinary.com/daaq0pagg/image/upload/v1604690846/RestaurantReviewer/ql0qpjzj41eo78hia27n.jpg',
+                    filename: 'RestaurantReviewer/ql0qpjzj41eo78hia27n' 
+                } 
+            ]
         })
         await rest.save();
     }
