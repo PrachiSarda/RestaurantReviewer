@@ -33,13 +33,13 @@ const seedDB = async () => {
             price,
             images: [ 
                 { 
-                    url: 'https://res.cloudinary.com/daaq0pagg/image/upload/v1604690846/RestaurantReviewer/cy3nwsuon4gumjk6rsmw.jpg',
-                    filename: 'RestaurantReviewer/cy3nwsuon4gumjk6rsmw' 
+                    url: 'https://res.cloudinary.com/daaq0pagg/image/upload/v1604741585/RestaurantReviewer/myw4s1axnrnbmobnd8yr.jpg',
+                    filename: 'RestaurantReviewer/myw4s1axnrnbmobnd8yr' 
                 },
-                { 
-                    url: 'https://res.cloudinary.com/daaq0pagg/image/upload/v1604690846/RestaurantReviewer/ql0qpjzj41eo78hia27n.jpg',
-                    filename: 'RestaurantReviewer/ql0qpjzj41eo78hia27n' 
-                } 
+                {
+                    url: 'https://res.cloudinary.com/daaq0pagg/image/upload/v1604741585/RestaurantReviewer/fyrd3pjwtpdj9ranftku.jpg',
+                    filename: 'RestaurantReviewer/fyrd3pjwtpdj9ranftku' 
+                }
             ]
         })
         await rest.save();
